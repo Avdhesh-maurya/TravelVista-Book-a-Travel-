@@ -1,0 +1,130 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Destinations | TravelVista{% endblock %}
+
+{% block content %}
+<style>
+    .hero-destinations {
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                    url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
+        height: 50vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+    }
+    
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s ease;
+    }
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .card {
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+
+<section class="hero-destinations fade-in">
+    <div class="container">
+        <span class="badge px-3 py-2 rounded-pill mb-3 fw-bold fs-6 shadow-sm border" style="background: var(--glass-bg); color: var(--text-color); backdrop-filter: blur(10px);">
+            <i class="bi bi-globe-americas text-primary me-2"></i>Global
+        </span>
+        <h1 class="display-3 fw-bold mb-3 shadow-sm-text">Explore Top Destinations</h1>
+        <p class="lead opacity-75 fw-medium">Discover breathtaking places and create unforgettable memories.</p>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="row text-center mb-4 fade-in">
+            <h6 class="text-primary fw-bold text-uppercase tracking-wide">Where to next?</h6>
+            <h2 class="display-6 fw-bold text-dark">Choose Your Travel Style</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">From serene beaches to majestic mountains, find the perfect getaway that matches your dream vacation.</p>
+        </div>
+
+        <!-- Filter & Search UI -->
+        <div class="row mb-5 justify-content-center fade-in">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm p-3" style="border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-color) !important;">
+                    <form method="GET" action="{% url 'destination_list' %}" class="row g-3 align-items-center">
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-0"><i class="bi bi-search var(--secondary-text)"></i></span>
+                                <input type="text" name="q" class="form-control border-0 shadow-none bg-transparent" style="color: var(--text-color);" placeholder="Search by name or keyword..." value="{{ query|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="category" class="form-select border-0 shadow-none text-muted bg-transparent">
+                                <option value="" class="bg-dark">All Categories</option>
+                                <option value="Adventure" {% if category == 'Adventure' %}selected{% endif %}>Adventure</option>
+                                <option value="Beach" {% if category == 'Beach' %}selected{% endif %}>Beach</option>
+                                <option value="Heritage" {% if category == 'Heritage' %}selected{% endif %}>Heritage</option>
+                                <option value="Romantic" {% if category == 'Romantic' %}selected{% endif %}>Romantic</option>
+                                <option value="City Break" {% if category == 'City Break' %}selected{% endif %}>City Break</option>
+                                <option value="Mountains" {% if category == 'Mountains' %}selected{% endif %}>Mountains</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Apply Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 fade-in">
+            {% for dest in destinations %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 h-100 shadow-sm">
+                        {% if dest.image and dest.image.name %}
+                            <img src="{{ dest.image.url }}" class="card-img-top" alt="{{ dest.name }}" style="height:220px; object-fit:cover;">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop" class="card-img-top" alt="{{ dest.name }}" style="height:220px; object-fit:cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ dest.name }}</h5>
+                            <p class="card-text">{{ dest.description|truncatewords:25 }}</p>
+                            <h6 class="text-success mb-3">₹{{ dest.price }} per person</h6>
+                                <div class="card-actions d-flex gap-2">
+                                    <a href="{% url 'book_destination' dest.id %}" class="btn btn-primary flex-grow-1 rounded-pill fw-bold">
+                                        Book Now
+                                    </a>
+                                    <a href="{% url 'save_destination' dest.id %}" class="btn btn-outline-danger rounded-circle shadow-sm" title="Save to Dashboard">
+                                        <i class="bi bi-heart"></i>
+                                    </a>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-center">No destinations found.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const fadeElements = document.querySelectorAll(".fade-in");
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("visible");
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        fadeElements.forEach(el => observer.observe(el));
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Raise Support Ticket | TravelVista{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 70px; height: 70px;">
+                            <i class="bi bi-headset fs-1"></i>
+                        </div>
+                        <h2 class="fw-bold">Raise a Ticket</h2>
+                        <p class="text-muted">Describe your issue and we'll get back to you soon.</p>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Subject / Concern</label>
+                            <input type="text" name="subject" class="form-control rounded-pill px-4"
+                                placeholder="e.g. Booking Cancellation, Payment Issue" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Details</label>
+                            <textarea name="message" class="form-control rounded-4 px-4" rows="5"
+                                placeholder="Please provide details so we can help you faster..." required></textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">Submit
+                                Ticket</button>
+                            <a href="{% url 'user_dashboard' %}"
+                                class="btn btn-link text-decoration-none text-muted">Back to Dashboard</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

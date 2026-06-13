@@ -1,0 +1,234 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Travel Buddy Matcher | TravelVista{% endblock %}
+
+{% block content %}
+<style>
+    .buddy-hero {
+        background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+        color: #d81b60;
+        padding: 80px 0;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .search-box {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-top: -60px;
+        position: relative;
+        z-index: 10;
+        margin-bottom: 50px;
+    }
+
+    .buddy-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        transition: transform 0.3s;
+    }
+    
+    .buddy-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+
+    .buddy-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 25px;
+        border: 4px solid #FECFEF;
+    }
+
+    .buddy-info {
+        flex-grow: 1;
+    }
+    
+    .tag {
+        background: #f1f3f5;
+        color: #495057;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin-right: 5px;
+        margin-bottom: 5px;
+        display: inline-block;
+    }
+
+    .btn-connect {
+        background: #d81b60;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 25px;
+        font-weight: bold;
+    }
+
+    .btn-connect.connected {
+        background: #28a745;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+    }
+    
+    .modal-header {
+        background: #FECFEF;
+        color: #d81b60;
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+    }
+
+    .loader-area {
+        display: none;
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .results-area {
+        display: none;
+    }
+
+</style>
+
+<div class="buddy-hero fade-in">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3"><i class="bi bi-people"></i> Find a Travel Buddy</h1>
+        <p class="lead fw-bold">Don't travel alone! Find amazing people heading to the same destination.</p>
+    </div>
+</div>
+
+<div class="container fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="search-box">
+                <form id="buddySearchForm" class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold">Where are you going?</label>
+                        <input type="text" class="form-control" id="destInput" placeholder="E.g., Paris, Tokyo, Bali" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold">When?</label>
+                        <input type="month" class="form-control" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-connect w-100 p-2"><i class="bi bi-search"></i> Search</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="loader-area" id="searchLoader">
+                <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h4 class="mt-3 text-muted">Searching our global network...</h4>
+            </div>
+
+            <div class="results-area fade-in" id="buddyResults">
+                <h3 class="fw-bold mb-4">Travelers heading to <span id="displayDest" class="text-danger"></span></h3>
+
+                {% for buddy in buddies %}
+                <div class="buddy-card">
+                    <img src="{{ buddy.image_url }}" class="buddy-avatar" alt="{{ buddy.name }}">
+                    <div class="buddy-info">
+                        <h5 class="fw-bold mb-1">{{ buddy.name }} <i class="bi bi-patch-check-fill text-primary"></i></h5>
+                        <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> Heading to {{ buddy.location }}</p>
+                        <div>
+                            {% for tag in buddy.tag_list %}
+                            <span class="tag">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-connect connect-btn" data-name="{{ buddy.name }}"><i class="bi bi-envelope-heart"></i> Connect</button>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5">
+                    <i class="bi bi-person-x" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">No matching travel buddies found for your search.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Connection Modal -->
+<div class="modal fade" id="connectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="bi bi-send-check"></i> Request Sent!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                <h4 class="mt-3">Message sent to <span id="modalBuddyName"></span></h4>
+                <p class="text-muted">You will be notified by email when they accept your travel buddy request. Pack your bags!</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('buddySearchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const destInput = document.getElementById('destInput').value;
+        const loader = document.getElementById('searchLoader');
+        const results = document.getElementById('buddyResults');
+        
+        // Hide results, show loader
+        results.style.display = 'none';
+        loader.style.display = 'block';
+        
+        setTimeout(() => {
+            loader.style.display = 'none';
+            document.getElementById('displayDest').innerText = destInput;
+            
+            // Reset buttons
+            document.querySelectorAll('.connect-btn').forEach(btn => {
+                btn.classList.remove('connected');
+                btn.innerHTML = '<i class="bi bi-envelope-heart"></i> Connect';
+            });
+            
+            results.style.display = 'block';
+        }, 1500);
+    });
+
+    // Handle connection logic
+    const connectBtns = document.querySelectorAll('.connect-btn');
+    const connectModal = new bootstrap.Modal(document.getElementById('connectModal'));
+    
+    connectBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if(!this.classList.contains('connected')){
+                const buddyName = this.getAttribute('data-name');
+                document.getElementById('modalBuddyName').innerText = buddyName;
+                
+                // Show modal
+                connectModal.show();
+                
+                // Update button state visually
+                this.classList.add('connected');
+                this.innerHTML = '<i class="bi bi-check-lg"></i> Request Sent';
+            }
+        });
+    });
+</script>
+{% endblock %}

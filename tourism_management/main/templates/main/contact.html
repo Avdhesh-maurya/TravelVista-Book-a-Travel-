@@ -1,0 +1,84 @@
+  {% extends 'main/base.html' %}
+  {% load static %}
+
+  {% block title %}Contact Us - TravelVista{% endblock %}
+
+  {% block content %}
+
+  <section class="hero-section text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1512428559087-560fa5ceab42?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; height: 50vh;">
+    <div class="container text-center" data-aos="fade-down">
+      <h1 class="display-4 fw-bold">Contact Us</h1>
+      <p class="lead">We are here to help you plan your next adventure</p>
+    </div>
+  </section>
+
+  <section class="contact-section py-5">
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-6" data-aos="fade-right">
+          <div class="bg-light rounded p-4 shadow-sm">
+            <h3 class="mb-4">Send Us a Message</h3>
+            <form method="post" action="{% url 'contact' %}">
+              {% csrf_token %}
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+              {% endif %}
+
+              {% for field in form %}
+                <div class="mb-3">
+                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <div class="text-danger small">{{ field.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+
+              <button type="submit" class="btn btn-primary px-4">Send Message</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-lg-6" data-aos="fade-left">
+          <div class="bg-white rounded p-4 shadow-sm h-100">
+            <h3 class="mb-4">Our Contact Info</h3>
+            <ul class="list-unstyled">
+              <li class="mb-3">
+                <i class="bi bi-envelope-fill text-primary me-2"></i>
+                <strong>Email:</strong> support@travelvista.com
+              </li>
+              <li class="mb-3">
+                <i class="bi bi-telephone-fill text-primary me-2"></i>
+                <strong>Phone:</strong> +123 456 7890
+              </li>
+              <li class="mb-3">
+                <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                <strong>Address:</strong> 123 Travel Lane, Adventure City, AC 12345
+              </li>
+            </ul>
+            <div class="mt-4">
+              <h5>Follow Us</h5>
+              <a href="#" class="text-decoration-none me-3"><i class="bi bi-facebook fs-5"></i></a>
+              <a href="#" class="text-decoration-none me-3"><i class="bi bi-twitter fs-5"></i></a>
+              <a href="#" class="text-decoration-none"><i class="bi bi-instagram fs-5"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="map-section py-5 bg-light" data-aos="fade-up">
+    <div class="container">
+      <h3 class="text-center mb-4">Find Us on the Map</h3>
+      <div class="ratio ratio-16x9">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3557.472165985168!2d80.9622960757279!3d26.920241976642664!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3999574abd2dec8d%3A0xb7f1a6491983f916!2sMecatredz%20Softwares%20and%20Innovations%20Pvt%20Ltd%20Lucknow!5e0!3m2!1sen!2sin!4v1753847695245!5m2!1sen!2sin"
+          allowfullscreen
+          loading="lazy"
+          style="border:0;"></iframe>
+      </div>
+    </div>
+  </section>
+
+  {% endblock %}

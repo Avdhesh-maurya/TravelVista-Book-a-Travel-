@@ -1,0 +1,853 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TravelVista - Explore the World{% endblock %}</title>
+
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}?v=2">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="fade-in">
+    <!-- Immediate Theme Initialization to prevent flash -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
+
+    <nav class="navbar navbar-expand-lg custom-navbar sticky-top flex-nowrap">
+        <div class="container-fluid px-4 px-lg-5">
+            <a class="navbar-brand fw-bold text-primary logo-text text-nowrap" href="{% url 'home' %}">
+                <i class="bi bi-compass-fill"></i> TravelVista
+            </a>
+            <button class="navbar-toggler flex-shrink-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNavDropdown">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse flex-grow-1" id="navbarNavDropdown">
+                <ul class="navbar-nav ms-auto flex-nowrap align-items-center" style="gap: 5px;">
+
+                    <li class="nav-item text-nowrap">
+                        <a class="nav-link custom-nav-link" href="{% url 'home' %}">Home</a>
+                    </li>
+
+                    <li class="nav-item text-nowrap">
+                        <a class="nav-link custom-nav-link" href="{% url 'contact' %}">Contact Us</a>
+                    </li>
+
+                    <li class="nav-item text-nowrap">
+                        <a class="nav-link custom-nav-link" href="{% url 'visa_policy' %}">Visa Policy</a>
+                    </li>
+
+                    <li class="nav-item dropdown text-nowrap">
+                        <a class="nav-link dropdown-toggle custom-nav-link" href="#" id="howToReachDropdown"
+                            role="button" data-bs-toggle="dropdown">
+                            How to Reach
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'by_train' %}">By Train</a></li>
+                            <li><a class="dropdown-item" href="{% url 'by_bus' %}">By Bus</a></li>
+                            <li><a class="dropdown-item" href="{% url 'by_flight' %}">By Flight</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown text-nowrap">
+                        <a class="nav-link dropdown-toggle custom-nav-link" href="#" id="destinationDropdown"
+                            role="button" data-bs-toggle="dropdown">
+                            Destinations
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="destinationDropdown">
+                            <li><a class="dropdown-item" href="{% url 'regional' %}">Regional</a></li>
+                            <li><a class="dropdown-item" href="{% url 'foreign' %}">Foreign</a></li>
+                            <li><a class="dropdown-item" href="{% url 'destination_list' %}">All</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item text-nowrap">
+                        <a class="nav-link custom-nav-link" href="{% url 'hotel_list' %}">Hotels</a>
+                    </li>
+
+                    <li class="nav-item text-nowrap">
+                        <a class="nav-link custom-nav-link" href="{% url 'best_time' %}">Best Time</a>
+                    </li>
+
+                    <li class="nav-item dropdown text-nowrap">
+                        <a class="nav-link dropdown-toggle text-success fw-bold custom-nav-link magic-link" href="#"
+                            id="uniqueDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-stars"></i> Magic
+                        </a>
+                        <ul class="dropdown-menu border-success shadow-sm" aria-labelledby="uniqueDropdown">
+                            <li><a class="dropdown-item" href="{% url 'mood_filter' %}"><i
+                                        class="bi bi-emoji-sunglasses"></i> Travel Moods</a></li>
+                            <li><a class="dropdown-item" href="{% url 'ai_planner' %}"><i class="bi bi-robot"></i> AI
+                                    Planner</a></li>
+                            <li><a class="dropdown-item" href="{% url 'buddy_matcher' %}"><i class="bi bi-people"></i>
+                                    Buddy Matcher</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Theme Toggle Button -->
+                    <li class="nav-item text-nowrap ms-2 me-2">
+                        <button id="themeToggle"
+                            class="btn border-0 text-secondary d-flex align-items-center justify-content-center p-2"
+                            style="font-size: 1.25rem; transition: color 0.3s ease;">
+                            <i id="themeIcon" class="bi bi-moon-stars"></i>
+                        </button>
+                    </li>
+
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown text-nowrap ms-1">
+                        <a class="nav-link dropdown-toggle fw-bold text-primary" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item" href="{% url 'user_dashboard' %}"><i
+                                        class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'logout_user' %}"><i
+                                        class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item text-nowrap ms-3 flex-shrink-0">
+                        <a class="btn btn-login-custom" href="{% url 'login_user' %}">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item text-nowrap ms-2 flex-shrink-0">
+                        <a class="btn btn-register-custom shadow-sm" href="{% url 'register' %}">
+                            <i class="bi bi-person-plus-fill"></i> Register
+                        </a>
+                    </li>
+                    <style>
+                        .btn-login-custom {
+                            color: #0d6efd;
+                            background: transparent;
+                            border: 1.5px solid transparent;
+                            font-weight: 600;
+                            padding: 0.4rem 1.2rem;
+                            border-radius: 50px;
+                            transition: all 0.3s ease;
+                        }
+
+                        .btn-login-custom:hover {
+                            color: #0a58ca;
+                            background: rgba(13, 110, 253, 0.08);
+                            border-color: rgba(13, 110, 253, 0.2);
+                            transform: translateY(-1px);
+                        }
+
+                        .btn-register-custom {
+                            color: white;
+                            background: linear-gradient(135deg, #0d6efd, #00c2ff);
+                            border: none;
+                            font-weight: 600;
+                            padding: 0.4rem 1.4rem;
+                            border-radius: 50px;
+                            transition: all 0.3s ease;
+                        }
+
+                        .btn-register-custom:hover {
+                            color: white;
+                            background: linear-gradient(135deg, #0b5ed7, #00b0f0);
+                            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.35) !important;
+                            transform: translateY(-2px);
+                        }
+                    </style>
+                    {% endif %}
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+
+    <style>
+        /* Modern Social Icons for Footer */
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-4px);
+            color: white;
+        }
+
+        .facebook-icon:hover {
+            background-color: #3b5998;
+            box-shadow: 0 5px 15px rgba(59, 89, 152, 0.4);
+        }
+
+        .twitter-icon:hover {
+            background-color: #000000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Twitter X */
+        .instagram-icon:hover {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            box-shadow: 0 5px 15px rgba(220, 39, 67, 0.4);
+        }
+
+        .linkedin-icon:hover {
+            background-color: #0077b5;
+            box-shadow: 0 5px 15px rgba(0, 119, 181, 0.4);
+        }
+
+        .youtube-icon:hover {
+            background-color: #FF0000;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+        }
+    </style>
+
+    <!-- Professional Footer -->
+    <footer class="footer bg-dark text-white pt-5 pb-4 mt-5">
+        <div class="container text-center text-md-start">
+            <div class="row text-center text-md-start">
+
+                <!-- Company Info -->
+                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 font-weight-bold text-primary">
+                        <i class="bi bi-compass-fill"></i> TravelVista
+                    </h5>
+                    <p>
+                        Embark on unforgettable journeys with TravelVista. We specialize in curating personalized travel
+                        experiences that inspire and rejuvenate. Your next adventure awaits.
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 font-weight-bold">Quick Links</h5>
+                    <p><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></p>
+                    <p><a href="{% url 'destination_list' %}" class="text-white text-decoration-none">Destinations</a>
+                    </p>
+                    <p><a href="{% url 'best_time' %}" class="text-white text-decoration-none">Best Time to Visit</a>
+                    </p>
+                    <p><a href="{% url 'visa_policy' %}" class="text-white text-decoration-none">Visa Policy</a></p>
+                </div>
+
+                <!-- Contact Support -->
+                <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 font-weight-bold">Support</h5>
+                    <p><a href="{% url 'contact' %}" class="text-white text-decoration-none">Contact Us</a></p>
+                    <p><a href="#" class="text-white text-decoration-none">FAQs</a></p>
+                    <p><a href="#" class="text-white text-decoration-none">Privacy Policy</a></p>
+                    <p><a href="#" class="text-white text-decoration-none">Terms of Service</a></p>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 font-weight-bold">Contact</h5>
+                    <p><i class="bi bi-house-door-fill me-3"></i> 123 Vista Ave, NY 10012, US</p>
+                    <p><i class="bi bi-envelope-fill me-3"></i> info@travelvista.com</p>
+                    <p><i class="bi bi-telephone-fill me-3"></i> + 01 234 567 88</p>
+                    <div class="mt-4 d-flex gap-3 justify-content-center justify-content-md-start">
+                        <!-- Social Links -->
+                        <a href="#" class="social-icon facebook-icon"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-icon twitter-icon"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-icon instagram-icon"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-icon linkedin-icon"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="social-icon youtube-icon"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="mb-4">
+
+            <div class="row align-items-center">
+                <div class="col-md-7 col-lg-8">
+                    <p class="mb-0">© 2026 TravelVista. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fadeElements = document.querySelectorAll(".fade-in");
+
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            fadeElements.forEach(el => observer.observe(el));
+        });
+    </script>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    </script>
+
+
+    <!-- ====== TravelVista Chatbot Widget ====== -->
+    <style>
+        /* Chatbot FAB Button */
+        #chatbot-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d6efd, #00c2ff);
+            color: white;
+            border: none;
+            box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: chatPulse 2.5s infinite;
+        }
+
+        #chatbot-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(13, 110, 253, 0.5);
+        }
+
+        @keyframes chatPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 8px 40px rgba(13, 110, 253, 0.7);
+            }
+        }
+
+        /* Chat Window */
+        #chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            right: 28px;
+            width: 360px;
+            max-height: 520px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 9998;
+            overflow: hidden;
+            animation: chatSlideIn 0.4s ease-out;
+        }
+
+        @keyframes chatSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        #chatbot-window.open {
+            display: flex;
+        }
+
+        /* Header */
+        .chat-header {
+            background: linear-gradient(135deg, #0d6efd, #00c2ff);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .chat-header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .chat-header-info h6 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .chat-header-info span {
+            font-size: 0.75rem;
+            opacity: 0.85;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .chat-close-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            opacity: 0.85;
+            padding: 0;
+        }
+
+        /* Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 320px;
+            background: #f8fafc;
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            animation: msgIn 0.3s ease-out;
+        }
+
+        @keyframes msgIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg-bot {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            color: #374151;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .msg-user {
+            background: linear-gradient(135deg, #0d6efd, #00c2ff);
+            color: white;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 7px;
+            height: 7px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: typingAnim 1.2s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnim {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-6px);
+            }
+        }
+
+        /* Quick Replies */
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px 16px 4px;
+            background: #f8fafc;
+        }
+
+        .quick-reply-btn {
+            background: white;
+            border: 1.5px solid #0d6efd;
+            color: #0d6efd;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+
+        .quick-reply-btn:hover {
+            background: #0d6efd;
+            color: white;
+        }
+
+        /* Input */
+        .chat-input-area {
+            display: flex;
+            padding: 12px 14px;
+            gap: 8px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 9px 16px;
+            font-size: 0.88rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input-area input:focus {
+            border-color: #0d6efd;
+        }
+
+        .chat-send-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d6efd, #00c2ff);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .chat-send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 480px) {
+            #chatbot-window {
+                width: calc(100vw - 40px);
+                right: 20px;
+            }
+
+            #chatbot-fab {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+    <!-- Chatbot FAB -->
+    <button id="chatbot-fab" onclick="toggleChat()" title="Chat with us">
+        <i class="bi bi-chat-dots-fill" id="chat-fab-icon"></i>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chatbot-window">
+        <div class="chat-header">
+            <div class="chat-header-avatar"><i class="bi bi-robot"></i></div>
+            <div class="chat-header-info">
+                <h6>TravelBot</h6>
+                <span><span class="online-dot"></span>Always Online</span>
+            </div>
+            <button class="chat-close-btn" onclick="toggleChat()">&#x2715;</button>
+        </div>
+
+        <div class="chat-messages" id="chat-messages"></div>
+
+        <div class="quick-replies" id="quick-replies">
+            <button class="quick-reply-btn" onclick="sendQuickReply('Destinations')">🗺 Destinations</button>
+            <button class="quick-reply-btn" onclick="sendQuickReply('Visa Info')">📋 Visa Info</button>
+            <button class="quick-reply-btn" onclick="sendQuickReply('How to Book')">🎟 Booking</button>
+            <button class="quick-reply-btn" onclick="sendQuickReply('Pricing')">💰 Pricing</button>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask me anything..."
+                onkeydown="if(event.key==='Enter') sendMessage()">
+            <button class="chat-send-btn" onclick="sendMessage()"><i class="bi bi-send-fill"
+                    style="font-size:0.85rem;"></i></button>
+        </div>
+    </div>
+
+    <script>
+        const KB = [
+            {
+                keys: ['hello', 'hi', 'hey', 'hola', 'greet'],
+                res: "👋 Hey there! I'm <strong>TravelBot</strong>, your personal travel assistant. How can I help you today?"
+            },
+            {
+                keys: ['destination', 'where', 'place', 'visit', 'explore', 'travel to'],
+                res: "🗺 We offer amazing destinations including <strong>Munnar</strong>, <strong>Goa</strong>, <strong>Manali</strong>, <strong>Paris</strong>, <strong>Bali</strong>, <strong>Dubai</strong> and more! <br>👉 <a href='/destinations/'>Browse all destinations</a>"
+            },
+            {
+                keys: ['visa', 'entry', 'requirement', 'passport', 'permit'],
+                res: "📋 Visa requirements vary by country and nationality. Visit our <a href='/visa-policy/'>Visa Policy page</a> for detailed entry requirements, document checklists, and processing times."
+            },
+            {
+                keys: ['book', 'booking', 'reserve', 'reservation', 'how to book'],
+                res: "🎟 Booking is easy! Just:<br>1. Browse <a href='/destinations/'>Destinations</a><br>2. Click <strong>Book Now</strong><br>3. Choose guests & date<br>4. Complete payment<br>You must be logged in to book."
+            },
+            {
+                keys: ['price', 'cost', 'fee', 'charge', 'how much', 'pricing', '₹', 'rupee'],
+                res: "💰 Prices start from as low as <strong>₹2,999 per person</strong> depending on the destination and season. Each destination card shows its price — no hidden fees!"
+            },
+            {
+                keys: ['contact', 'email', 'phone', 'reach', 'support', 'help'],
+                res: "📞 You can reach us via our <a href='/contact/'>Contact page</a>. We typically respond within 24–48 hours. We're here to make your journey perfect!"
+            },
+            {
+                keys: ['best time', 'season', 'when', 'month', 'weather'],
+                res: "🌤 The best time to visit depends on your destination! Check out our <a href='/best-time/'>Best Time to Visit</a> page for season-wise guides and activity recommendations."
+            },
+            {
+                keys: ['train', 'bus', 'flight', 'how to reach', 'transport', 'reach'],
+                res: "✈ We have detailed guides for every mode of travel! Check <a href='/how-to-reach/'>How to Reach</a> for train, bus, and flight options to your destination."
+            },
+            {
+                keys: ['regional', 'india', 'domestic', 'local'],
+                res: "🇮🇳 We have amazing <strong>regional destinations</strong> across India — <a href='/regional/'>Explore Regional Destinations</a>."
+            },
+            {
+                keys: ['foreign', 'international', 'abroad', 'overseas'],
+                res: "🌍 Dreaming of an international escape? Browse <a href='/foreign/'>International Destinations</a> including Paris, Bali, Dubai, Santorini, and more!"
+            },
+            {
+                keys: ['mood', 'vibe', 'adventure', 'relaxation', 'romantic', 'party'],
+                res: "🎭 Try our unique <a href='/mood-filter/'>Travel Mood Filter</a>! Tell us your vibe — adventure, romance, relaxation — and we'll match you with the perfect destination!"
+            },
+            {
+                keys: ['ai', 'itinerary', 'plan', 'planner', 'trip plan', 'generate'],
+                res: "🤖 Check out our <a href='/ai-planner/'>AI Trip Planner</a>! Just enter your destination, duration, and travel vibe — we'll generate a full day-by-day itinerary for you."
+            },
+            {
+                keys: ['buddy', 'friend', 'solo', 'companion', 'travel with', 'match'],
+                res: "👫 Traveling solo? Use our <a href='/buddy-matcher/'>Travel Buddy Matcher</a> to connect with like-minded travelers heading to the same destination!"
+            },
+            {
+                keys: ['hotel', 'stay', 'resort', 'accommodation', 'room', 'where to stay'],
+                res: "🏨 We have a great selection of luxury stays! From the Elite Munnar Resort to ocean-view stays in Goa. <br>👉 <a href='/hotels/'>Browse Luxury Hotels</a>"
+            },
+            {
+                keys: ['ticket', 'support', 'message', 'help', 'issue', 'problem', 'raise'],
+                res: "🎫 Need help? You can raise a support ticket directly from your <a href='/dashboard/'>Dashboard</a> or visit our <a href='/contact/'>Contact page</a> for immediate assistance."
+            },
+            {
+                keys: ['dashboard', 'profile', 'my booking', 'my trip', 'history'],
+                res: "👤 You can view all your tour bookings, hotel stays, and support tickets in your personal <a href='/dashboard/'>User Dashboard</a>."
+            },
+            {
+                keys: ['thank', 'thanks', 'great', 'awesome', 'perfect', 'good'],
+                res: "😊 You're very welcome! Have an amazing journey. Feel free to ask me anything else anytime! ✈"
+            },
+            {
+                keys: ['bye', 'goodbye', 'exit', 'see you'],
+                res: "👋 Goodbye! Have a wonderful trip ahead. Come back anytime for travel tips and bookings! 🌍"
+            },
+        ];
+
+        function getBotResponse(text) {
+            const lower = text.toLowerCase();
+            for (const item of KB) {
+                if (item.keys.some(k => lower.includes(k))) return item.res;
+            }
+            return "🤔 I'm not sure about that, but our team is happy to help! Please visit our <a href='/contact/'>Contact page</a> or try one of the quick replies below.";
+        }
+
+        function appendMsg(text, who) {
+            const box = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `msg msg-${who}`;
+            div.innerHTML = text;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function showTyping() {
+            const box = document.getElementById('chat-messages');
+            const t = document.createElement('div');
+            t.className = 'typing-indicator';
+            t.id = 'typing';
+            t.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            box.appendChild(t);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function removeTyping() {
+            const t = document.getElementById('typing');
+            if (t) t.remove();
+        }
+
+        function botReply(text) {
+            showTyping();
+            setTimeout(() => {
+                removeTyping();
+                appendMsg(getBotResponse(text), 'bot');
+            }, 900 + Math.random() * 400);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            appendMsg(text, 'user');
+            input.value = '';
+            botReply(text);
+        }
+
+        function sendQuickReply(text) {
+            appendMsg(text, 'user');
+            botReply(text);
+        }
+
+        function toggleChat() {
+            const win = document.getElementById('chatbot-window');
+            const icon = document.getElementById('chat-fab-icon');
+            const isOpen = win.classList.toggle('open');
+            icon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-chat-dots-fill';
+            if (isOpen && document.getElementById('chat-messages').children.length === 0) {
+                setTimeout(() => {
+                    appendMsg("👋 Hi! I'm <strong>TravelBot</strong> — your AI travel assistant. Ask me about destinations, bookings, visas, prices, or anything travel-related!", 'bot');
+                }, 300);
+            }
+        }
+    </script>
+
+    <script>
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.classList.remove('bi-moon-stars');
+                themeIcon.classList.add('bi-sun');
+                themeToggle.classList.remove('text-secondary');
+                themeToggle.classList.add('text-warning');
+            } else {
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon-stars');
+                themeToggle.classList.remove('text-warning');
+                themeToggle.classList.add('text-secondary');
+            }
+        }
+
+        // Initialize icon state
+        updateThemeIcon(html.getAttribute('data-theme'));
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+    </script>
+</body>
+
+</html>

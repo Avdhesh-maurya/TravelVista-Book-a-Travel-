@@ -1,0 +1,318 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}AI Trip Planner | TravelVista{% endblock %}
+
+{% block content %}
+<style>
+    .ai-hero {
+        background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop') center/cover;
+        position: relative;
+        color: white;
+        padding: 100px 0;
+        text-align: center;
+    }
+    
+    .ai-hero::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(10, 10, 30, 0.7);
+    }
+
+    .ai-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+
+    .planner-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 10;
+        margin-bottom: 50px;
+    }
+
+    .form-control, .form-select {
+        padding: 15px;
+        border-radius: 10px;
+        border: 2px solid #eee;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: none;
+    }
+
+    .btn-generate {
+        background: linear-gradient(45deg, #0d6efd, #00d2ff);
+        border: none;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-weight: bold;
+        transition: transform 0.3s;
+    }
+
+    .btn-generate:hover {
+        transform: scale(1.05);
+    }
+
+    /* Loader */
+    .ai-loader {
+        display: none;
+        text-align: center;
+        padding: 50px 0;
+    }
+
+    .spinner-grow {
+        width: 3rem; height: 3rem;
+    }
+
+    /* Itinerary Output */
+    #itinerary-result {
+        display: none;
+    }
+
+    .day-card {
+        border-left: 4px solid #0d6efd;
+        background: #f8f9fa;
+        border-radius: 0 15px 15px 0;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .day-card:hover {
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transform: translateX(10px);
+    }
+
+    .day-header {
+        color: #0d6efd;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .activity {
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: #6c757d;
+    }
+
+</style>
+
+<div class="ai-hero fade-in">
+    <div class="container">
+        <h1 class="display-4 fw-bold"><i class="bi bi-robot"></i> AI Trip Planner</h1>
+        <p class="lead">Let our smart algorithm build your perfect day-by-day itinerary in seconds.</p>
+    </div>
+</div>
+
+<div class="container fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="planner-card">
+                <form id="aiPlannerForm">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Where do you want to go?</label>
+                            <input type="text" class="form-control" id="destination" placeholder="E.g., Paris, Kyoto, or 'Surprise Me!'" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Duration (Days)</label>
+                            <input type="number" class="form-control" id="days" min="1" max="14" value="3" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Travel Vibe</label>
+                            <select class="form-select" id="vibe">
+                                <option value="Adventure">Adventure & Outdoors</option>
+                                <option value="Relaxing">Relaxing & Spa</option>
+                                <option value="Cultural">Cultural Immersion</option>
+                                <option value="Foodie">Foodie Tour</option>
+                                <option value="Balanced" selected>A bit of everything</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-generate text-white w-100 fs-5">
+                            <i class="bi bi-magic"></i> Generate My Itinerary
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="ai-loader" id="aiLoader">
+        <div class="spinner-grow text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h4 class="mt-3 text-muted">Thinking contextually... mapping routes...</h4>
+    </div>
+
+    <!-- Result State -->
+    <div id="itinerary-result" class="mb-5">
+        <div id="res-hero" class="rounded-4 mb-4" style="height: 300px; background: center/cover no-repeat; position: relative;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); border-radius: 20px;"></div>
+            <div style="position: absolute; bottom: 30px; left: 30px; color: white;">
+                <h2 class="fw-bold mb-0">Your <span id="res-vibe"></span> Trip to <span id="res-dest"></span></h2>
+                <p class="mb-0 opacity-75"><i class="bi bi-calendar-event me-2"></i>Curated by TravelVista AI</p>
+            </div>
+            <div style="position: absolute; top: 20px; right: 20px;">
+                <button class="btn btn-light rounded-pill px-3 shadow-sm" onclick="window.print()"><i class="bi bi-printer me-2"></i>Print Plan</button>
+            </div>
+        </div>
+        
+        <div id="itinerary-days">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</div>
+
+<script>
+    const destinationImages = {
+        'paris': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200',
+        'tokyo': 'https://images.unsplash.com/photo-1540959733332-e94e270b4d82?q=80&w=1200',
+        'london': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=1200',
+        'dubai': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1200',
+        'bali': 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1200',
+        'mumbai': 'https://images.unsplash.com/photo-1566549097737-ed0df1d6962e?q=80&w=1200',
+        'delhi': 'https://images.unsplash.com/photo-1587474260584-136574528ed5?q=80&w=1200',
+        'goa': 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1200',
+        'manali': 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=1200',
+        'kyoto': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200',
+        'default': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=1200'
+    };
+
+    document.getElementById('aiPlannerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const dest = document.getElementById('destination').value;
+        const days = parseInt(document.getElementById('days').value);
+        const vibe = document.getElementById('vibe').value;
+
+        // Hide form, show loader
+        document.querySelector('.planner-card').style.display = 'none';
+        document.getElementById('aiLoader').style.display = 'block';
+        document.getElementById('itinerary-result').style.display = 'none';
+
+        // Simulate API Call
+        setTimeout(() => {
+            document.getElementById('aiLoader').style.display = 'none';
+            document.getElementById('res-dest').innerText = dest;
+            document.getElementById('res-vibe').innerText = vibe;
+            
+            // Set Hero Image
+            const lowerDest = dest.toLowerCase();
+            let bgImg = destinationImages.default;
+            for(let key in destinationImages) {
+                if(lowerDest.includes(key)) {
+                    bgImg = destinationImages[key];
+                    break;
+                }
+            }
+            document.getElementById('res-hero').style.backgroundImage = `url('${bgImg}')`;
+            
+            generateMockItinerary(days, vibe);
+            
+            document.getElementById('itinerary-result').style.display = 'block';
+        }, 2200); 
+    });
+
+    function generateMockItinerary(days, vibe) {
+        const container = document.getElementById('itinerary-days');
+        container.innerHTML = '';
+
+        const activities = {
+            'Adventure': [
+                { time: '08:00 AM', act: 'Sunrise Expedition & Exploration', icon: 'bi-brightness-alt-high' },
+                { time: '11:00 AM', act: 'High-Altitude Aerial Activity', icon: 'bi-alt' },
+                { time: '02:00 PM', act: 'Water-based Adventure Session', icon: 'bi-water' },
+                { time: '05:00 PM', act: 'Sunset Trail & Photography', icon: 'bi-camera' },
+                { time: '08:00 PM', act: 'Night-time Basecamp Social', icon: 'bi-stars' }
+            ],
+            'Relaxing': [
+                { time: '09:00 AM', act: 'Mindfulness & Morning Serenity', icon: 'bi-heart-pulse' },
+                { time: '11:00 AM', act: 'Artisanal Brunch Experience', icon: 'bi-cup-hot' },
+                { time: '02:00 PM', act: 'Holistic Wellness & Spa Therapy', icon: 'bi-flower1' },
+                { time: '05:00 PM', act: 'Coastal View Leisure Stroll', icon: 'bi-sunset' },
+                { time: '08:00 PM', act: 'Premium Fine Dining Experience', icon: 'bi-moon-stars' }
+            ],
+            'Cultural': [
+                { time: '09:00 AM', act: 'Heritage Corridor Guided Walk', icon: 'bi-bank' },
+                { time: '12:00 PM', act: 'Local Artisanship Workshop', icon: 'bi-palette' },
+                { time: '03:00 PM', act: 'Historical Landmark Navigation', icon: 'bi-building' },
+                { time: '06:00 PM', act: 'Traditional Arts Performance', icon: 'bi-ticket-perforated' },
+                { time: '08:30 PM', act: 'Curated Gastronomic Heritage Tour', icon: 'bi-egg-fried' }
+            ],
+            'Foodie': [
+                { time: '08:00 AM', act: 'Iconic Local Market Breakfast', icon: 'bi-shop' },
+                { time: '11:00 AM', act: 'Specialty Beverage Crafting Session', icon: 'bi-cup-hot' },
+                { time: '01:00 PM', act: 'Signature Chef-led Tasting Lunch', icon: 'bi-egg-fried' },
+                { time: '04:00 PM', act: 'Sweet Delights Discovery Route', icon: 'bi-box-seam' },
+                { time: '08:00 PM', act: 'Premier Multiple-course Dinner', icon: 'bi-star-fill' }
+            ],
+            'Balanced': [
+                { time: '09:00 AM', act: 'Primary City Landmark Exploration', icon: 'bi-camera' },
+                { time: '12:00 PM', act: 'Authentic Local Sidewalk Cafe Experience', icon: 'bi-cup-hot' },
+                { time: '02:30 PM', act: 'Curated Boutique & Craft Discovery', icon: 'bi-bag' },
+                { time: '05:30 PM', act: 'Panoramic Vista Point Visit', icon: 'bi-camera-video' },
+                { time: '08:00 PM', act: 'Social Hub Evening & Global Cuisine', icon: 'bi-stars' }
+            ]
+        };
+
+        for(let i=1; i<=days; i++) {
+            let html = `
+                <div class="day-card animate-fade-in" style="animation-delay: ${i*0.1}s">
+                    <h4 class="day-header"><i class="bi bi-geo-fill me-2"></i> Day ${i}</h4>
+            `;
+
+            activities[vibe].forEach(event => {
+                html += `
+                    <div class="activity">
+                        <div class="activity-icon"><i class="bi ${event.icon}"></i></div>
+                        <div>
+                            <p class="mb-0 fw-bold text-dark">${event.time}</p>
+                            <p class="text-muted mb-0">${event.act}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML += html;
+        }
+        
+        container.innerHTML += `
+            <div class="text-center mt-4">
+                <button class="btn btn-primary rounded-pill px-4 shadow-sm" onclick="resetPlanner()">
+                    <i class="bi bi-arrow-left me-2"></i>Plan Another Journey
+                </button>
+            </div>
+        `;
+    }
+
+    function resetPlanner() {
+        document.getElementById('itinerary-result').style.display = 'none';
+        document.querySelector('.planner-card').style.display = 'block';
+        document.getElementById('destination').value = '';
+    }
+</script>
+
+{% endblock %}

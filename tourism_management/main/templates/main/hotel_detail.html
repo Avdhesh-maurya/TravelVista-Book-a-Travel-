@@ -1,0 +1,115 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Book {{ hotel.name }} – TravelVista{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4 fade-in">
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+                {% if hotel.image %}
+                <img src="{{ hotel.image.url }}" class="img-fluid"
+                    style="height: 450px; object-fit: cover; width:100%;">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1542314841-3827178a1efb?q=80&w=1200" class="img-fluid"
+                    style="height: 450px; object-fit: cover; width:100%;">
+                {% endif %}
+            </div>
+            <h1 class="fw-bold mb-3">{{ hotel.name }}</h1>
+            <p class="text-muted mb-4"><i class="bi bi-geo-alt-fill text-primary me-2"></i>{{ hotel.destination.name }}
+            </p>
+            <div class="mb-5">
+                <h4 class="fw-bold mb-3">About this hotel</h4>
+                <p class="text-muted" style="line-height: 1.8;">{{ hotel.description }}</p>
+            </div>
+            <div class="mb-5">
+                <h4 class="fw-bold mb-3">Amenities</h4>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for amenity in hotel.amenities.split %}
+                    <span class="badge bg-light text-dark border rounded-pill">{{ amenity|cut:"," }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 100px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Book Your Stay</h5>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">CHECK-IN</label>
+                            <input type="date" name="check_in" id="check_in" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">CHECK-OUT</label>
+                            <input type="date" name="check_out" id="check_out" class="form-control" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">GUESTS</label>
+                            <select name="guests" id="guests" class="form-select">
+                                <option value="1">1 Guest</option>
+                                <option value="2">2 Guests</option>
+                                <option value="3">3 Guests</option>
+                            </select>
+                        </div>
+                        <div class="border-top pt-3 mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">₹{{ hotel.price_per_night }} x <span id="night_count">1</span>
+                                    night(s)</span>
+                                <span class="fw-bold" id="total_display">₹{{ hotel.price_per_night }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Total (incl. GST)</span>
+                                <h4 class="fw-bold text-success mb-0" id="final_total">₹{{ hotel.price_per_night }}</h4>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow">
+                            Reserve Room
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const checkIn = document.getElementById('check_in');
+    const checkOut = document.getElementById('check_out');
+    const guests = document.getElementById('guests');
+    const nightCount = document.getElementById('night_count');
+    const totalDisplay = document.getElementById('total_display');
+    const finalTotal = document.getElementById('final_total');
+
+    const pricePerNight = parseFloat("{{ hotel.price_per_night }}");
+
+    function updatePrice() {
+        if (checkIn.value && checkOut.value) {
+            const start = new Date(checkIn.value);
+            const end = new Date(checkOut.value);
+            const diff = (end - start) / (1000 * 60 * 60 * 24);
+            const nights = Math.max(1, Math.ceil(diff));
+            const guestCount = parseInt(guests.value);
+
+            const total = pricePerNight * nights * guestCount;
+
+            nightCount.innerText = nights;
+            totalDisplay.innerText = '₹' + (pricePerNight * nights).toLocaleString();
+            finalTotal.innerText = '₹' + total.toLocaleString();
+        }
+    }
+
+    checkIn.addEventListener('change', updatePrice);
+    checkOut.addEventListener('change', updatePrice);
+    guests.addEventListener('change', updatePrice);
+
+    // Set min dates to today
+    const today = new Date().toISOString().split('T')[0];
+    checkIn.min = today;
+    checkIn.addEventListener('change', () => {
+        checkOut.min = checkIn.value;
+    });
+</script>
+{% endblock %}

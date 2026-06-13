@@ -1,0 +1,85 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="hero-section" style="background: url({% static 'images/reach-bg.jpg' %}) center/cover no-repeat; height: 60vh;">
+  <div class="overlay d-flex justify-content-center align-items-center text-white text-center" style="background: rgba(0,0,0,0.5); height: 100%;">
+    <div>
+      <h1 class="display-4 fw-bold" data-aos="fade-down">How to Reach</h1>
+      <p class="lead" data-aos="fade-up" data-aos-delay="200">Multiple convenient options to get here</p>
+    </div>
+  </div>
+</section>
+
+<section class="container py-5">
+  <div class="row g-5">
+    
+    <div class="col-md-4" data-aos="zoom-in">
+      <div class="card border-0 shadow-sm h-100">
+        <a href="{% url 'by_bus' %}" class="text-decoration-none text-dark">
+          <img src="{% static 'assets/premium_bus.png' %}" class="card-img-top" alt="By Bus">
+          <div class="card-body">
+            <h4 class="card-title text-primary">By Bus</h4>
+            <p class="card-text">Regular deluxe and government buses connect major cities to our destination. Scenic routes and comfortable travel make this a budget-friendly and enjoyable option.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    
+    <div class="col-md-4" data-aos="zoom-in" data-aos-delay="150">
+      <div class="card border-0 shadow-sm h-100">
+        <a href="{% url 'by_train' %}" class="text-decoration-none text-dark">
+          <img src="{% static 'assets/luxury_train.png' %}" class="card-img-top" alt="By Train">
+          <div class="card-body">
+            <h4 class="card-title text-primary">By Train</h4>
+            <p class="card-text">Well-connected railway stations make reaching us easy from all metro cities. Choose express or superfast trains for convenience, speed, and scenic journeys.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    
+    <div class="col-md-4" data-aos="zoom-in" data-aos-delay="300">
+      <div class="card border-0 shadow-sm h-100">
+        <a href="{% url 'by_flight' %}" class="text-decoration-none text-dark">
+          <img src="{% static 'assets/modern_flight.png' %}" class="card-img-top" alt="By Flight">
+          <div class="card-body">
+            <h4 class="card-title text-primary">By Flight</h4>
+            <p class="card-text">Our nearest airport is just an hour’s drive. Multiple daily flights from all major airports make it the fastest way to begin your adventure here.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container pb-5">
+  <div class="row g-4">
+    <div class="col-12 text-center mb-4">
+        <h2 class="fw-bold">Location-Wise Travel Info</h2>
+        <p class="text-muted">Specific reach details for our popular destinations.</p>
+    </div>
+    {% for dest in destinations %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 border-0 shadow-sm" style="border-radius: 20px; background: #fff;">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+             <div class="rounded-circle bg-primary text-white p-2 d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-geo-alt-fill"></i>
+             </div>
+             <h5 class="fw-bold mb-0">{{ dest.name }}</h5>
+          </div>
+          <p class="card-text text-muted mb-0">{{ dest.reach_info }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="text-center pb-5" data-aos="fade-up">
+  <h2 class="fw-bold">General Travel Tips</h2>
+  <p class="text-muted">Book your transportation in advance during peak seasons. All modes are well-maintained and traveler-friendly.</p>
+</section>
+{% endblock %}

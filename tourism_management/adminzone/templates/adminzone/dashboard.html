@@ -1,0 +1,16 @@
+{% extends 'adminzone/base_admin.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title">Welcome, Admin!</h2>
+            <p class="card-text">This is your dashboard overview. Use the side menu to manage destinations, users, contacts, and settings.</p>
+
+            <a href="{% url 'admin_change_password' %}" class="btn btn-outline-info mt-3">Change Password</a>
+            <a href="{% url 'user_management' %}" class="btn btn-outline-primary mt-3">Manage Users</a>
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}By Flight | How to Reach{% endblock %}
+
+{% block content %}
+<style>
+    .flight-hero {
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static "assets/modern_flight.png" %}') center/cover no-repeat;
+        height: 60vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+    }
+</style>
+
+<section class="flight-hero fade-in">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Reach by Flight</h1>
+        <p class="lead">Fast, convenient, and time-saving for domestic & international tourists.</p>
+    </div>
+</section>
+
+<section class="py-5 bg-light fade-in">
+    <div class="container">
+        <h2 class="mb-4 text-center">Major Airports</h2>
+        <div class="row g-4">
+            {% for airport in airports %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow border-0 overflow-hidden" style="border-radius: 20px;">
+                    <div style="height: 200px; overflow: hidden;">
+                        {% if airport.image_url %}
+                        <img src="{{ airport.image_url }}" class="card-img-top h-100 w-100" style="object-fit: cover; transition: transform 0.5s;" alt="{{ airport.name }}" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1.0)'">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?q=80&w=800" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="{{ airport.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-4">
+                        <span class="badge bg-primary-subtle text-primary mb-2 px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                            <i class="bi bi-geo-alt-fill me-1"></i>{{ airport.city }}
+                        </span>
+                        <h5 class="card-title fw-bold mb-2">{{ airport.name }}</h5>
+                        <p class="text-muted small mb-0">{{ airport.description }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 px-4 pb-4">
+                        <small class="text-primary fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.7rem;">
+                            <i class="bi bi-info-circle me-1"></i>{{ airport.airport_type }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">No airport data available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="py-5 fade-in">
+    <div class="container text-center">
+        <h3>Plan Ahead</h3>
+        <p class="text-muted">Book your flights early to enjoy the best fares and travel times. Many airports offer metro or cab services for quick city access.</p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Reach by Train | TravelVista{% endblock %}
+
+{% block content %}
+<section class="hero-section text-white text-center py-5 fade-in"
+    style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static 'assets/luxury_train.png' %}') center/cover no-repeat; height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Reach Your Destination by Train</h1>
+        <p class="lead">Experience scenic journeys, comfort, and affordability</p>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5 fade-in">
+            <h2 class="fw-bold">Why Travel by Train?</h2>
+            <p class="text-muted">Explore the perks of railway travel for your journey.</p>
+        </div>
+        <div class="row g-4 fade-in">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <img src="{% static 'assets/icon_comfort.png' %}" alt="Comfort" class="mb-3" width="70">
+                        <h5 class="card-title">Comfortable Journey</h5>
+                        <p class="card-text">Wide seats, sleeping berths, and the freedom to move around during travel.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <img src="{% static 'assets/icon_cost.png' %}" alt="Affordable" class="mb-3" width="70">
+                        <h5 class="card-title">Affordable Fares</h5>
+                        <p class="card-text">A great way to travel long distances without burning your budget.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <img src="{% static 'assets/icon_eco.png' %}" alt="Eco-friendly" class="mb-3" width="70">
+                        <h5 class="card-title">Eco-Friendly</h5>
+                        <p class="card-text">Reduce your carbon footprint with energy-efficient rail transportation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5 fade-in">
+            <div class="col-md-6">
+                <h3>Major Railway Routes</h3>
+                <p>Well-connected railway networks link major cities and tourist destinations. Whether you’re heading to
+                    the mountains, beaches, or heritage towns, there’s likely a train route ready for you.</p>
+                <ul>
+                    <li>Express and Superfast trains available</li>
+                    <li>Online booking via IRCTC or local operators</li>
+                    <li>Train tourism packages for a complete experience</li>
+                </ul>
+                <a href="https://www.irctc.co.in/" target="_blank" class="btn btn-primary mt-3">Book on IRCTC</a>
+            </div>
+            <div class="col-md-6">
+                <div class="ratio ratio-16x9">
+                    <iframe class="rounded shadow"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3559.899964509272!2d75.78727011504408!3d26.912433783123325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db53d7ec9bd67%3A0x45b09322f041eead!2sJaipur%20Junction!5e0!3m2!1sen!2sin!4v1629723593011!5m2!1sen!2sin"
+                        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

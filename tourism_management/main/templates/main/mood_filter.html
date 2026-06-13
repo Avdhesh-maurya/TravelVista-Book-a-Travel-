@@ -1,0 +1,249 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Travel Moods | TravelVista{% endblock %}
+
+{% block content %}
+<style>
+    .mood-hero {
+        background: linear-gradient(135deg, #FF6B6B 0%, #556270 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .mood-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-bottom: 50px;
+    }
+
+    .mood-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .mood-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .mood-card.active {
+        border: 4px solid #FF6B6B;
+        transform: scale(1.05);
+    }
+
+    .mood-image {
+        height: 200px;
+        width: 100%;
+        background-color: #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: white;
+    }
+
+    /* Gradient backgrounds for moods */
+    .bg-chill { background: linear-gradient(45deg, #00b09b, #96c93d); }
+    .bg-adventure { background: linear-gradient(45deg, #f12711, #f5af19); }
+    .bg-culture { background: linear-gradient(45deg, #8E2DE2, #4A00E0); }
+    .bg-romance { background: linear-gradient(45deg, #ff0844, #ffb199); }
+
+    .mood-card-content {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .destination-grid {
+        display: none; /* Hidden by default */
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 60px;
+    }
+
+    .destination-grid.active {
+        display: grid;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mock destination cards */
+    .dest-card { border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .dest-card img { height: 250px; object-fit: cover; }
+    .dest-card .card-body { padding: 25px; }
+
+</style>
+
+<div class="mood-hero fade-in">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3"><i class="bi bi-emoji-sunglasses"></i> What's your Travel Mood?</h1>
+        <p class="lead">Don't know where to go? Tell us how you want to feel, and we'll handle the rest.</p>
+    </div>
+</div>
+
+<div class="container fade-in">
+    <h3 class="text-center mb-5 fw-bold text-secondary">Step 1: Select your mood</h3>
+
+    <div class="mood-cards">
+        <div class="mood-card" onclick="selectMood('chill', this)">
+            <div class="mood-image bg-chill"><i class="bi bi-cup-straw"></i></div>
+            <div class="mood-card-content">
+                <h4 class="fw-bold">Total Disconnect</h4>
+                <p class="text-muted mb-0">Beaches, spas, and absolute zero stress.</p>
+            </div>
+        </div>
+
+        <div class="mood-card" onclick="selectMood('adventure', this)">
+            <div class="mood-image bg-adventure"><i class="bi bi-bicycle"></i></div>
+            <div class="mood-card-content">
+                <h4 class="fw-bold">Thrill Seeker</h4>
+                <p class="text-muted mb-0">Mountains, treks, and adrenaline rushes.</p>
+            </div>
+        </div>
+
+        <div class="mood-card" onclick="selectMood('culture', this)">
+            <div class="mood-image bg-culture"><i class="bi bi-bank"></i></div>
+            <div class="mood-card-content">
+                <h4 class="fw-bold">Time Traveler</h4>
+                <p class="text-muted mb-0">Ancient ruins, museums, and rich history.</p>
+            </div>
+        </div>
+
+        <div class="mood-card" onclick="selectMood('romance', this)">
+            <div class="mood-image bg-romance"><i class="bi bi-suit-heart-fill"></i></div>
+            <div class="mood-card-content">
+                <h4 class="fw-bold">Romantic Escape</h4>
+                <p class="text-muted mb-0">Candlelight dinners and breathtaking views.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    <div id="recommendations-section" style="display: none;" class="mt-5 pt-5 border-top">
+        <h3 class="text-center mb-5 fw-bold text-primary">Step 2: Here are your perfect matches!</h3>
+
+        <!-- Chill Matches -->
+        <div id="grid-chill" class="destination-grid">
+            {% for dest in destinations %}
+                {% if dest.category == 'Beach' %}
+                <div class="card dest-card">
+                    {% if dest.image and dest.image.name %}
+                    <img src="{{ dest.image.url }}" class="card-img-top" alt="{{ dest.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=600&auto=format&fit=crop" class="card-img-top" alt="{{ dest.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">98% Match</span>
+                        <h5 class="card-title fw-bold">{{ dest.name }}</h5>
+                        <p class="card-text text-muted">{{ dest.description|truncatewords:20 }}</p>
+                        <a href="{% url 'book_destination' dest.id %}" class="btn btn-outline-primary w-100">Explore</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Adventure Matches -->
+        <div id="grid-adventure" class="destination-grid">
+            {% for dest in destinations %}
+                {% if dest.category == 'Adventure' or dest.category == 'Mountains' %}
+                <div class="card dest-card">
+                    {% if dest.image and dest.image.name %}
+                    <img src="{{ dest.image.url }}" class="card-img-top" alt="{{ dest.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=600&auto=format&fit=crop" class="card-img-top" alt="{{ dest.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-warning text-dark mb-2">High Adrenaline</span>
+                        <h5 class="card-title fw-bold">{{ dest.name }}</h5>
+                        <p class="card-text text-muted">{{ dest.description|truncatewords:20 }}</p>
+                        <a href="{% url 'book_destination' dest.id %}" class="btn btn-outline-primary w-100">Explore</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Culture Matches -->
+        <div id="grid-culture" class="destination-grid">
+            {% for dest in destinations %}
+                {% if dest.category == 'Heritage' %}
+                <div class="card dest-card">
+                    {% if dest.image and dest.image.name %}
+                    <img src="{{ dest.image.url }}" class="card-img-top" alt="{{ dest.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=600&auto=format&fit=crop" class="card-img-top" alt="{{ dest.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-purple mb-2" style="background: purple; color: white;">Deep History</span>
+                        <h5 class="card-title fw-bold">{{ dest.name }}</h5>
+                        <p class="card-text text-muted">{{ dest.description|truncatewords:20 }}</p>
+                        <a href="{% url 'book_destination' dest.id %}" class="btn btn-outline-primary w-100">Explore</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Romance Matches -->
+        <div id="grid-romance" class="destination-grid">
+             {% for dest in destinations %}
+                {% if dest.category == 'Romantic' %}
+                <div class="card dest-card">
+                    {% if dest.image and dest.image.name %}
+                    <img src="{{ dest.image.url }}" class="card-img-top" alt="{{ dest.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=600&auto=format&fit=crop" class="card-img-top" alt="{{ dest.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-danger mb-2"><i class="bi bi-heart-fill"></i> Romantic</span>
+                        <h5 class="card-title fw-bold">{{ dest.name }}</h5>
+                        <p class="card-text text-muted">{{ dest.description|truncatewords:20 }}</p>
+                        <a href="{% url 'book_destination' dest.id %}" class="btn btn-outline-primary w-100">Explore</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function selectMood(mood, element) {
+        // Remove active class from all cards
+        document.querySelectorAll('.mood-card').forEach(card => card.classList.remove('active'));
+        
+        // Add active class to clicked card
+        element.classList.add('active');
+
+        // Show the recommendations section
+        document.getElementById('recommendations-section').style.display = 'block';
+
+        // Hide all grids
+        document.querySelectorAll('.destination-grid').forEach(grid => grid.classList.remove('active'));
+
+        // Show the selected grid
+        const selectedGrid = document.getElementById('grid-' + mood);
+        if(selectedGrid) {
+            selectedGrid.classList.add('active');
+            
+            // Scroll to it smoothly
+            selectedGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+</script>
+
+{% endblock %}
