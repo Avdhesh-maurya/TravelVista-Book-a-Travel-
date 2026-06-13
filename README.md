@@ -156,10 +156,7 @@ For production deployment:
 5. Set up proper logging and monitoring
 6. Use environment-specific settings
 
-## License
-
-[Specify your license here]
 
 ## Contact
 
-[Your contact information]
+avdheshkumar80k@gmail.com
